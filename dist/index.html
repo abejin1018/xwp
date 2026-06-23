@@ -80,6 +80,7 @@
     gap: 28px;
     align-items: end;
   }
+  .home-art { display: none; }
   .home-copy {
     grid-column: 1;
     align-self: end;
@@ -591,41 +592,32 @@
     :root { --cell: 32px; }
     .home-screen {
       justify-content: start;
-      background:
-        linear-gradient(180deg, rgba(7, 42, 28, .12) 0%, rgba(7, 42, 28, .48) 40%, rgba(21, 88, 62, .96) 70%, #15583e 100%),
-        url("assets/title.png") 46% top / auto min(42dvh, 320px) no-repeat,
-        #15583e;
+      background: linear-gradient(180deg, #15583e 0%, #0f4a35 100%);
       padding: clamp(18px, 5vw, 28px) 14px 14px;
     }
     .home-inner {
       min-height: calc(100dvh - 28px);
       grid-template-columns: 1fr;
-      grid-template-rows: minmax(210px, 42dvh) auto;
+      grid-template-rows: auto auto;
       align-items: end;
       gap: 12px;
     }
+    .home-art {
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      align-self: start;
+      background: url("assets/title.png") center center / contain no-repeat;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .18));
+    }
     .home-copy {
-      position: static;
-      width: auto;
-      height: auto;
-      overflow: visible;
-      clip: auto;
-      white-space: normal;
-      opacity: 1;
-      pointer-events: auto;
-      align-self: center;
-      padding-top: min(12dvh, 82px);
-    }
-    .home-title {
-      font-size: clamp(58px, 18vw, 92px);
-      line-height: .92;
-      text-shadow: 0 6px 0 rgba(0, 0, 0, .25);
-    }
-    .home-sub {
-      max-width: 15em;
-      font-size: clamp(18px, 5.8vw, 28px);
-      line-height: 1.25;
-      text-shadow: 0 3px 0 rgba(0, 0, 0, .22);
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      opacity: 0;
     }
     .home-panel {
       grid-column: auto;
@@ -660,6 +652,7 @@
 <main>
   <section id="homeScreen" class="screen home-screen">
     <div class="home-inner">
+      <div class="home-art" aria-hidden="true"></div>
       <div class="home-copy">
         <h1 class="home-title">宝さがせ</h1>
         <p class="home-sub">南浜・門脇・雲雀野 クロスワードラリー</p>
