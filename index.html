@@ -1182,7 +1182,7 @@ function inputChoice(ch) {
   validateCell(input);
   save();
   refreshCurrentHint();
-  if (!checkCompletion({ announce: true })) moveNext();
+  if (!checkCompletion({ announce: true }) && !moveNext()) renderKeyboard();
 }
 
 function clearSelectedCell() {
@@ -1194,6 +1194,7 @@ function clearSelectedCell() {
   save();
   refreshCurrentHint();
   checkCompletion();
+  renderKeyboard();
 }
 
 function validateCell(input) {
@@ -1408,14 +1409,16 @@ function updateMapHighlight() {
 
 function moveNext() {
   const w = activeWord();
-  if (!w || !selectedKey) return;
+  if (!w || !selectedKey) return false;
   const cells = wordCells(w).filter(p => isAnswerCharacter(p.ch)).map(p => key(p.r, p.c));
   const i = cells.indexOf(selectedKey);
   if (i >= 0 && i < cells.length - 1) {
     const next = document.querySelector(`[data-key="${cells[i + 1]}"] input`);
     selectCell(cells[i + 1]);
     next?.focus();
+    return true;
   }
+  return false;
 }
 
 function onKeyDown(e) {
