@@ -62,18 +62,30 @@
   .home-screen {
     flex-direction: column;
     align-items: stretch;
-    justify-content: start;
-    background: linear-gradient(#37664f 0 34%, #f6f1e8 34%);
-    padding: min(8vh, 64px) 22px 28px;
-    gap: 24px;
+    justify-content: end;
+    background:
+      linear-gradient(180deg, rgba(10, 54, 37, .08) 0%, rgba(10, 54, 37, .18) 58%, rgba(10, 54, 37, .58) 100%),
+      url("assets/title.png") center center / cover no-repeat,
+      #15583e;
+    padding: clamp(18px, 4vw, 42px);
   }
   .home-inner {
-    width: min(980px, 100%);
+    position: relative;
+    z-index: 1;
+    width: min(1160px, 100%);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
     gap: 28px;
     align-items: end;
+  }
+  .home-copy {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
   .home-title {
     font-size: clamp(50px, 12vw, 112px);
@@ -91,11 +103,15 @@
     margin: 10px 0 0;
   }
   .home-panel {
-    background: #fffdf8;
+    grid-column: 2;
+    background: rgba(255, 253, 248, .94);
     border: 2px solid #222;
     border-radius: 8px;
     padding: 18px;
-    box-shadow: 0 8px 0 #0001;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .22);
+    max-height: min(48dvh, 390px);
+    overflow: auto;
+    backdrop-filter: blur(4px);
   }
   .home-panel h2 {
     margin: 0 0 10px;
@@ -184,6 +200,7 @@
     color: #111;
     text-transform: uppercase;
     z-index: 2;
+    touch-action: none;
   }
   .cell input.fixed-symbol {
     color: #211815;
@@ -572,8 +589,12 @@
 
   @media (max-width: 760px) {
     :root { --cell: 32px; }
-    .home-inner { grid-template-columns: 1fr; align-items: start; }
-    .home-panel { margin-top: 8vh; }
+    .home-screen {
+      background-position: 42% top;
+      padding: 14px;
+    }
+    .home-inner { grid-template-columns: 1fr; align-items: end; }
+    .home-panel { grid-column: auto; margin-top: 46dvh; max-height: 46dvh; }
     .tab { height: 52px; font-size: 23px; }
     .main-area { margin: 0; }
     .hint-panel { left: 8px; right: 8px; bottom: 8px; padding: 12px 14px; max-height: min(48dvh, 240px); }
@@ -596,7 +617,7 @@
 <main>
   <section id="homeScreen" class="screen home-screen">
     <div class="home-inner">
-      <div>
+      <div class="home-copy">
         <h1 class="home-title">宝さがせ</h1>
         <p class="home-sub">南浜・門脇・雲雀野 クロスワードラリー</p>
       </div>
@@ -956,8 +977,7 @@ function createCells() {
       input.setAttribute("aria-readonly", "true");
     }
     input.setAttribute("aria-label", `${cell.r}行${cell.c}列`);
-    input.addEventListener("pointerdown", e => {
-      e.stopPropagation();
+    input.addEventListener("pointerdown", () => {
       selectCell(input.dataset.key, true);
     });
     input.addEventListener("focus", () => selectCell(input.dataset.key, false));
@@ -1433,7 +1453,49 @@ function resetAnswers({ ask = true } = {}) {
   renderKeyboard();
 }
 
+function boardVisibleBounds() {
+  const rect = viewport.getBoundingClientRect();
+  const panelRect = document.querySelector(".hint-panel").getBoundingClientRect();
+  const panelTop = panelRect.top > rect.top ? panelRect.top : rect.bottom;
+  const visibleHeight = Math.max(220, panelTop - rect.top - 14);
+  return {
+    rect,
+    left: -rect.width / 2,
+    right: rect.width / 2,
+    top: -rect.height / 2,
+    bottom: -rect.height / 2 + visibleHeight
+  };
+}
+
+function boardSize() {
+  const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cell"));
+  return {
+    width: 18 * cell,
+    height: 20 * cell
+  };
+}
+
+function boardFitScale() {
+  const { rect, bottom, top } = boardVisibleBounds();
+  if (!rect.width || !rect.height) return .45;
+  const size = boardSize();
+  return Math.min(rect.width / (size.width + 40), (bottom - top) / (size.height + 40), 1.08);
+}
+
+function clampBoardTransform() {
+  const bounds = boardVisibleBounds();
+  if (!bounds.rect.width || !bounds.rect.height) return;
+  const size = boardSize();
+  const minScale = Math.max(.35, boardFitScale() * .9);
+  transform.scale = Math.max(minScale, Math.min(2.8, transform.scale));
+  const scaledWidth = size.width * transform.scale;
+  const scaledHeight = size.height * transform.scale;
+  transform.x = clampAxis(transform.x, scaledWidth, bounds.left, bounds.right);
+  transform.y = clampAxis(transform.y, scaledHeight, bounds.top, bounds.bottom);
+}
+
 function applyTransform() {
+  clampBoardTransform();
   stage.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`;
 }
 
@@ -1606,7 +1668,7 @@ viewport.addEventListener("pointermove", e => {
   }
   if (pointers.size === 2 && lastPinch) {
     const now = getPinch();
-    const next = Math.max(.45, Math.min(2.8, lastPinch.scale * (now.dist / lastPinch.dist)));
+    const next = Math.max(boardFitScale() * .9, Math.min(2.8, lastPinch.scale * (now.dist / lastPinch.dist)));
     transform.x = now.cx - (lastPinch.cx - transform.x) * (next / transform.scale);
     transform.y = now.cy - (lastPinch.cy - transform.y) * (next / transform.scale);
     transform.scale = next;
@@ -1637,7 +1699,7 @@ viewport.addEventListener("wheel", e => {
   const px = e.clientX - rect.left - rect.width / 2;
   const py = e.clientY - rect.top - rect.height / 2;
   const old = transform.scale;
-  const next = Math.max(.45, Math.min(2.8, old * (e.deltaY < 0 ? 1.08 : .92)));
+  const next = Math.max(boardFitScale() * .9, Math.min(2.8, old * (e.deltaY < 0 ? 1.08 : .92)));
   transform.x = px - (px - transform.x) * (next / old);
   transform.y = py - (py - transform.y) * (next / old);
   transform.scale = next;
