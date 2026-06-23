@@ -484,24 +484,27 @@
   }
   .final-answer {
     min-width: min(100%, 360px);
+    max-width: 100%;
     min-height: 42px;
     display: inline-flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-wrap: nowrap;
+    gap: clamp(2px, 1vw, 6px);
     align-items: center;
     padding: 5px 8px;
     background: #fffdf8;
     border: 3px solid #222;
     border-radius: 8px;
+    overflow-x: auto;
   }
   .final-slot {
-    min-width: 42px;
-    height: 42px;
+    flex: 0 0 clamp(30px, 9vw, 42px);
+    width: clamp(30px, 9vw, 42px);
+    height: clamp(34px, 10vw, 42px);
     border: 3px solid #222;
     border-radius: 8px;
     background: #fffdf8;
     color: var(--ink);
-    font-size: 21px;
+    font-size: clamp(16px, 5vw, 21px);
     font-weight: 900;
   }
   .final-answer.is-empty::before {
@@ -661,7 +664,6 @@
         <ul class="terms-list">
           <li>スマートフォン、タブレット、パソコンの最新ブラウザで利用できます。</li>
           <li>iPhoneはSafari、AndroidはChromeでの利用を推奨します。</li>
-          <li>入力内容はこの端末のブラウザ内に自動保存されます。</li>
         </ul>
         <h2>利用規約</h2>
         <ul class="terms-list">
@@ -734,7 +736,7 @@
       <section id="finalSolvedModal" class="completion-modal hidden" role="dialog" aria-modal="true" aria-labelledby="finalSolvedTitle">
         <div class="completion-card">
           <h2 id="finalSolvedTitle">正解！</h2>
-          <p>たからものはタイセツナイノチ</p>
+          <p>宝（たから）ものは、あなたの持っている大切な命（タイセツナイノチ）です。どうか、いつまでも大切にしてください。</p>
           <button id="finalSolvedCloseBtn" type="button">閉じる</button>
         </div>
       </section>
