@@ -1438,8 +1438,49 @@ function applyTransform() {
 }
 
 function applyMapTransform() {
+  clampMapTransform();
   mapStage.style.transform = `translate(${mapTransform.x}px, ${mapTransform.y}px) scale(${mapTransform.scale})`;
   mapStage.style.setProperty("--pin-scale", 1 / mapTransform.scale);
+}
+
+function mapVisibleBounds() {
+  const rect = mapView.getBoundingClientRect();
+  const panelRect = document.querySelector(".hint-panel").getBoundingClientRect();
+  const panelTop = panelRect.top > rect.top ? panelRect.top : rect.bottom;
+  const visibleHeight = Math.max(220, panelTop - rect.top - 14);
+  return {
+    rect,
+    left: -rect.width / 2,
+    right: rect.width / 2,
+    top: -rect.height / 2,
+    bottom: -rect.height / 2 + visibleHeight
+  };
+}
+
+function mapFitScale() {
+  const { rect, bottom, top } = mapVisibleBounds();
+  const canvas = mapStage.querySelector(".map-canvas");
+  if (!rect.width || !rect.height || !canvas) return .35;
+  return Math.min(rect.width / canvas.offsetWidth, (bottom - top) / canvas.offsetHeight, 1);
+}
+
+function clampAxis(start, size, min, max) {
+  const span = max - min;
+  if (size <= span) return min + (span - size) / 2;
+  return Math.min(min, Math.max(max - size, start));
+}
+
+function clampMapTransform() {
+  const canvas = mapStage.querySelector(".map-canvas");
+  if (!canvas) return;
+  const bounds = mapVisibleBounds();
+  if (!bounds.rect.width || !bounds.rect.height) return;
+  const minScale = Math.max(.25, mapFitScale() * .96);
+  mapTransform.scale = Math.max(minScale, Math.min(3.2, mapTransform.scale));
+  const scaledWidth = canvas.offsetWidth * mapTransform.scale;
+  const scaledHeight = canvas.offsetHeight * mapTransform.scale;
+  mapTransform.x = clampAxis(mapTransform.x, scaledWidth, bounds.left, bounds.right);
+  mapTransform.y = clampAxis(mapTransform.y, scaledHeight, bounds.top, bounds.bottom);
 }
 
 function centerBoard() {
@@ -1466,7 +1507,7 @@ function centerMap() {
   const panelRect = document.querySelector(".hint-panel").getBoundingClientRect();
   const panelTop = panelRect.top > rect.top ? panelRect.top : rect.bottom;
   const visibleHeight = Math.max(220, panelTop - rect.top - 14);
-  mapTransform.scale = Math.min(rect.width / mapWidth, visibleHeight / mapHeight, 1);
+  mapTransform.scale = mapFitScale();
   mapTransform.x = -(mapWidth * mapTransform.scale) / 2;
   mapTransform.y = Math.max(14, (visibleHeight - mapHeight * mapTransform.scale) / 2) - rect.height / 2;
   applyMapTransform();
@@ -1481,7 +1522,7 @@ function focusMap(point = null) {
   const panelRect = document.querySelector(".hint-panel").getBoundingClientRect();
   const panelTop = panelRect.top > rect.top ? panelRect.top : rect.bottom;
   const visibleHeight = Math.max(220, panelTop - rect.top - 14);
-  const fit = Math.min(rect.width / mapWidth, visibleHeight / mapHeight, 1);
+  const fit = mapFitScale();
   const scale = point ? Math.min(1.5, Math.max(fit * 1.9, .92)) : Math.min(1.25, Math.max(fit * 1.65, .82));
   const focusX = point ? (point.x / 100) * mapWidth : mapWidth / 2;
   const focusY = point ? (point.y / 100) * mapHeight : mapHeight / 2;
