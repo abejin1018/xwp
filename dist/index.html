@@ -473,32 +473,35 @@
     display: grid;
     gap: 10px;
     padding-top: 10px;
+    min-width: 0;
   }
   .final-question {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
     align-items: center;
     gap: 8px;
     font-size: 22px;
     font-weight: 900;
+    min-width: 0;
   }
   .final-answer {
-    min-width: min(100%, 360px);
+    width: 100%;
+    min-width: 0;
     max-width: 100%;
     min-height: 42px;
-    display: inline-flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     gap: clamp(2px, 1vw, 6px);
     align-items: center;
     padding: 5px 8px;
     background: #fffdf8;
     border: 3px solid #222;
     border-radius: 8px;
-    overflow-x: auto;
+    overflow: hidden;
   }
   .final-slot {
-    flex: 0 0 clamp(30px, 9vw, 42px);
-    width: clamp(30px, 9vw, 42px);
+    width: 100%;
+    min-width: 0;
     height: clamp(34px, 10vw, 42px);
     border: 3px solid #222;
     border-radius: 8px;
@@ -508,7 +511,7 @@
     font-weight: 900;
   }
   .final-answer.is-empty::before {
-    content: "文字を選んでならべる";
+    content: none;
     color: var(--muted);
     font-size: 14px;
     font-weight: 700;
@@ -1129,6 +1132,14 @@ function selectCell(k, fromTap = false) {
     wordCells(active).forEach(p => document.querySelector(`[data-key="${key(p.r, p.c)}"]`)?.classList.add("word"));
   }
   document.querySelector(`[data-key="${k}"]`)?.classList.add("selected");
+  if (finalChallengeOpen) {
+    setFinalHintText();
+    kanaKeyboard.classList.add("hidden");
+    finalChallenge.classList.remove("hidden");
+    updateMapHighlight();
+    renderFinalChallenge();
+    return;
+  }
   updateHint(ids);
   updateMapHighlight();
   renderKeyboard();
@@ -1243,6 +1254,11 @@ function keypointLetters() {
   });
 }
 
+function setFinalHintText() {
+  hintTitle.textContent = "最終問題";
+  hintBody.textContent = "色つきのキーポイントマスの文字をならべかえて、たからものを見つけよう。";
+}
+
 function showFinalChallenge(resetSelection = true, announce = false) {
   const wasCompleted = puzzleCompleted;
   puzzleCompleted = true;
@@ -1260,8 +1276,7 @@ function showFinalChallenge(resetSelection = true, announce = false) {
     cell.style.setProperty("--key-color", colorByKeypoint.get(index) || FINAL_COLORS[index % FINAL_COLORS.length]);
     cell.classList.add("keypoint");
   });
-  hintTitle.textContent = "最終問題";
-  hintBody.textContent = "色つきのキーポイントマスの文字をならべかえて、たからものを見つけよう。";
+  setFinalHintText();
   kanaKeyboard.classList.add("hidden");
   finalChallenge.classList.remove("hidden");
   if (resetSelection) finalSelection = [];
