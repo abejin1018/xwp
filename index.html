@@ -581,17 +581,7 @@
 </head>
 <body>
 <main>
-  <section id="termsScreen" class="screen">
-    <div class="terms-card">
-      <h1>利用規約</h1>
-      <p>このアプリは、南浜・門脇・雲雀野周辺の震災伝承スポットを巡りながらクロスワードを解くための試作版です。</p>
-      <p>現地で使用する場合は、道路・車両・周囲の状況に十分注意し、安全を最優先してください。</p>
-      <p>地名、施設名、カギ、答えは確認しながら更新します。</p>
-      <button id="agreeBtn" class="primary-btn">同意して進む</button>
-    </div>
-  </section>
-
-  <section id="homeScreen" class="screen home-screen hidden">
+  <section id="homeScreen" class="screen home-screen">
     <div class="home-inner">
       <div>
         <h1 class="home-title">宝さがせ</h1>
@@ -599,7 +589,7 @@
       </div>
       <div class="home-panel">
         <p>地図を見ながら現地のカギを探し、見つけた答えをマスに入力します。入力内容はこの端末に自動保存されます。</p>
-        <button id="startBtn" class="primary-btn start-btn">はじめる</button>
+        <button id="startBtn" class="primary-btn start-btn">利用規約に同意してはじめる</button>
       </div>
     </div>
   </section>
@@ -1666,10 +1656,6 @@ function setMode(mode) {
   }
 }
 
-document.getElementById("agreeBtn").addEventListener("click", () => {
-  termsScreen.classList.add("hidden");
-  homeScreen.classList.remove("hidden");
-});
 document.getElementById("startBtn").addEventListener("click", () => {
   homeScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
