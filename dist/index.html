@@ -97,7 +97,20 @@
     padding: 18px;
     box-shadow: 0 8px 0 #0001;
   }
+  .home-panel h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    line-height: 1.25;
+  }
   .home-panel p { margin: 0 0 16px; line-height: 1.65; color: var(--muted); }
+  .terms-list {
+    margin: 0 0 18px;
+    padding-left: 1.2em;
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+  .terms-list li { margin: 0 0 8px; }
   .start-btn { width: 100%; font-size: 20px; padding: 18px 28px; }
 
   .game-screen { display: block; background: #fff; overflow: hidden; }
@@ -589,6 +602,12 @@
       </div>
       <div class="home-panel">
         <p>地図を見ながら現地のカギを探し、見つけた答えをマスに入力します。入力内容はこの端末に自動保存されます。</p>
+        <h2>利用規約</h2>
+        <ul class="terms-list">
+          <li>現地で使用する場合は、道路・車両・周囲の状況に十分注意し、安全を最優先してください。</li>
+          <li>歩きながらの画面操作は避け、立ち止まってから操作してください。</li>
+          <li>入力内容はこの端末のブラウザ内に保存され、サーバーには送信されません。</li>
+        </ul>
         <button id="startBtn" class="primary-btn start-btn">利用規約に同意してはじめる</button>
       </div>
     </div>
