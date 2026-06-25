@@ -963,15 +963,14 @@ function currentInput() {
 function activeChoices() {
   const w = activeWord();
   if (!w) return [];
-  return wordCells(w)
-    .filter(pos => isAnswerCharacter(pos.ch))
-    .filter(pos => {
-      const k = key(pos.r, pos.c);
-      const input = document.querySelector(`[data-key="${k}"] input`);
-      return input?.value !== pos.ch;
-    })
-    .map(pos => pos.ch)
-    .sort(sortKanaChoice);
+  const cells = wordCells(w).filter(pos => isAnswerCharacter(pos.ch));
+  const remaining = cells.map(pos => pos.ch);
+  cells.forEach(pos => {
+    const input = document.querySelector(`[data-key="${key(pos.r, pos.c)}"] input`);
+    const usedIndex = remaining.indexOf(input?.value || "");
+    if (usedIndex >= 0) remaining.splice(usedIndex, 1);
+  });
+  return remaining.sort(sortKanaChoice);
 }
 
 function sortKanaChoice(a, b) {
