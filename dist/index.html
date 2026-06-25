@@ -968,7 +968,7 @@ function activeChoices() {
     .filter(pos => {
       const k = key(pos.r, pos.c);
       const input = document.querySelector(`[data-key="${k}"] input`);
-      return !input?.value;
+      return input?.value !== pos.ch;
     })
     .map(pos => pos.ch)
     .sort(sortKanaChoice);
